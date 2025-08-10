@@ -1,0 +1,48 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ユーザーテーブル
+model User {
+  id          String   @id @default(cuid())
+  name        String
+  email       String   @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // リレーション
+  faceData    FaceData[]
+  authLogs    AuthLog[]
+}
+
+// 顔データテーブル
+model FaceData {
+  id          String   @id @default(cuid())
+  userId      String
+  embedding   String   // JSON文字列として保存
+  quality     Float
+  createdAt   DateTime @default(now())
+  
+  // リレーション
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// 認証ログ（簡易版）
+model AuthLog {
+  id          String   @id @default(cuid())
+  userId      String?
+  success     Boolean
+  similarity  Float?
+  timestamp   DateTime @default(now())
+  
+  // リレーション
+  user        User?    @relation(fields: [userId], references: [id])
+}
