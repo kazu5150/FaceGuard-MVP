@@ -13,7 +13,6 @@ import {
 } from '@/lib/security';
 import { 
   AppError, 
-  withErrorHandler, 
   createValidationError, 
   createNotFoundError,
   createRateLimitError,
@@ -29,8 +28,8 @@ export async function POST(request: NextRequest) {
   
   try {
     // セキュリティチェック
-    if (detectSuspiciousActivity(ip, userAgent, '/api/face/register')) {
-      throw new AppError('Suspicious activity detected', 'SECURITY_VIOLATION' as any, 403);
+    if (detectSuspiciousActivity(ip, userAgent)) {
+      throw new AppError('Suspicious activity detected', 'SECURITY_VIOLATION', 403);
     }
 
     // レート制限チェック
@@ -84,7 +83,7 @@ export async function POST(request: NextRequest) {
 
     // 既に顔データが登録されているかチェック
     if (existingUser.faceData.length > 0) {
-      throw new AppError('このユーザーには既に顔データが登録されています', 'RESOURCE_ALREADY_EXISTS' as any, 409);
+      throw new AppError('このユーザーには既に顔データが登録されています', 'RESOURCE_ALREADY_EXISTS', 409);
     }
 
     // 顔データを保存

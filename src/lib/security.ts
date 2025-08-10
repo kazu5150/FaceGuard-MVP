@@ -14,7 +14,7 @@ export interface SecurityEvent {
   ip: string;
   userAgent: string;
   timestamp: Date;
-  details?: Record<string, any>;
+  details?: Record<string, unknown>;
 }
 
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
@@ -58,7 +58,7 @@ export function checkRateLimit(key: string, config: RateLimitConfig): RateLimitR
   };
 }
 
-export function validateFaceEmbedding(embedding: any): { valid: boolean; error?: string } {
+export function validateFaceEmbedding(embedding: unknown): { valid: boolean; error?: string } {
   if (!Array.isArray(embedding)) {
     return { valid: false, error: 'Face embedding must be an array' };
   }
@@ -78,7 +78,7 @@ export function validateFaceEmbedding(embedding: any): { valid: boolean; error?:
   return { valid: true };
 }
 
-export function validateQuality(quality: any): { valid: boolean; error?: string } {
+export function validateQuality(quality: unknown): { valid: boolean; error?: string } {
   if (typeof quality !== 'number') {
     return { valid: false, error: 'Quality must be a number' };
   }
@@ -99,7 +99,7 @@ export function getSecurityHeaders(): Record<string, string> {
   };
 }
 
-export function detectSuspiciousActivity(ip: string, userAgent: string, endpoint: string): boolean {
+export function detectSuspiciousActivity(ip: string, userAgent: string): boolean {
   if (!ip || ip === 'unknown') {
     return false;
   }

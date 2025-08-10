@@ -20,6 +20,13 @@ export interface CreateUserRequest {
   email: string;
 }
 
+export interface UserListResponse {
+  users: User[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
 // Face Recognition Types
 export interface FaceEmbedding {
   embedding: number[];

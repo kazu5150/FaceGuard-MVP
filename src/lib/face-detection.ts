@@ -26,13 +26,25 @@ export interface FaceDetectionOptions {
 // グローバルなMediaPipeインスタンス用の型定義
 declare global {
   interface Window {
-    FaceMesh: any;
+    FaceMesh: new (options: { locateFile: (file: string) => string }) => {
+      setOptions: (options: Record<string, number | boolean>) => void;
+      onResults: (callback: (results: unknown) => void) => void;
+      send: (data: { image: HTMLVideoElement }) => Promise<void>;
+      close: () => void;
+    };
   }
 }
 
+type FaceMeshInstance = {
+  setOptions: (options: Record<string, number | boolean>) => void;
+  onResults: (callback: (results: unknown) => void) => void;
+  send: (data: { image: HTMLVideoElement }) => Promise<void>;
+  close: () => void;
+};
+
 export class FaceDetector {
-  private faceMesh: any = null;
-  private camera: any = null;
+  private faceMesh: FaceMeshInstance | null = null;
+  private camera: { isActive: boolean } | null = null;
   private isInitialized = false;
   private onResultsCallback: ((results: FaceDetectionResult | null) => void) | null = null;
 
@@ -66,8 +78,8 @@ export class FaceDetector {
         minTrackingConfidence: this.options.minTrackingConfidence!,
       });
 
-      this.faceMesh.onResults((results) => {
-        this.handleResults(results);
+      this.faceMesh.onResults((results: unknown) => {
+        this.handleResults(results as Results);
       });
 
       this.isInitialized = true;
@@ -99,7 +111,7 @@ export class FaceDetector {
         }, 200);
       };
 
-      const onScriptError = (error: any) => {
+      const onScriptError = (error: Event | string) => {
         console.error('MediaPipe script loading error:', error);
         reject(new Error(`MediaPipeスクリプトの読み込みに失敗しました: ${error}`));
       };
@@ -161,7 +173,7 @@ export class FaceDetector {
       }
       
       // 次のフレームを処理
-      if (this.camera && (this.camera as any).isActive) { // カメラが停止されていなければ続行
+      if (this.camera && this.camera.isActive) { // カメラが停止されていなければ続行
         requestAnimationFrame(processFrame);
       }
     };

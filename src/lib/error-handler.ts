@@ -9,7 +9,7 @@ export interface LogEntry {
   level: LogLevel;
   message: string;
   timestamp: Date;
-  context?: Record<string, any>;
+  context?: Record<string, unknown>;
   error?: Error;
   ip?: string;
   userAgent?: string;
@@ -20,7 +20,7 @@ export class AppError extends Error {
     message: string,
     public code: string,
     public statusCode: number = 500,
-    public details?: Record<string, any>
+    public details?: Record<string, unknown>
   ) {
     super(message);
     this.name = 'AppError';
@@ -108,10 +108,10 @@ export function createRateLimitError(resetTime?: number): AppError {
   );
 }
 
-export function withErrorHandler<T extends (...args: any[]) => any>(
+export function withErrorHandler<T extends (...args: unknown[]) => unknown>(
   fn: T
 ): T {
-  return ((...args: any[]) => {
+  return ((...args: unknown[]) => {
     try {
       const result = fn(...args);
       if (result instanceof Promise) {

@@ -51,8 +51,12 @@ export async function POST(request: NextRequest) {
     }
 
     // 最も類似度の高いユーザーを見つける
-    let bestMatch = {
-      user: null as any,
+    let bestMatch: {
+      user: { id: string; name: string; email: string } | null;
+      similarity: number;
+      faceDataId: string;
+    } = {
+      user: null,
       similarity: 0,
       faceDataId: ''
     };
@@ -90,14 +94,14 @@ export async function POST(request: NextRequest) {
     // レスポンス作成
     const response = {
       success: isAuthenticated,
-      user: isAuthenticated ? {
+      user: isAuthenticated && bestMatch.user ? {
         id: bestMatch.user.id,
         name: bestMatch.user.name,
         email: bestMatch.user.email,
       } : null,
       similarity: bestMatch.similarity,
       threshold: FaceDetector.AUTHENTICATION_THRESHOLD,
-      message: isAuthenticated 
+      message: isAuthenticated && bestMatch.user
         ? `${bestMatch.user.name}さんとして認証されました` 
         : `類似度が閾値 ${(FaceDetector.AUTHENTICATION_THRESHOLD * 100).toFixed(1)}% を下回りました`
     };

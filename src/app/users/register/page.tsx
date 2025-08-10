@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import FaceDetector, { FaceDetectorRef } from '@/components/FaceDetector';
 import { FaceDetectionResult } from '@/lib/face-detection';
-import { ApiResponse } from '@/types';
+import { ApiResponse, User } from '@/types';
 
 function UserRegisterContent() {
   const router = useRouter();
@@ -74,7 +74,7 @@ function UserRegisterContent() {
         }),
       });
 
-      const result: ApiResponse = await response.json();
+      const result: ApiResponse<User> = await response.json();
 
       if (!result.success || !result.data) {
         throw new Error(result.error || 'ユーザーの作成に失敗しました');
@@ -134,7 +134,7 @@ function UserRegisterContent() {
       }
 
       // JSONパースのエラーハンドリング
-      let result: ApiResponse;
+      let result: ApiResponse<{ faceId: string; message: string }>;
       try {
         const responseText = await response.text();
         if (!responseText) {

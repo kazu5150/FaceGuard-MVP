@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import UserList from '@/components/UserList';
-import { User, ApiResponse } from '@/types';
+import { User, ApiResponse, UserListResponse } from '@/types';
 
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
@@ -17,7 +17,7 @@ export default function UsersPage() {
       setError(null);
 
       const response = await fetch('/api/users');
-      const result: ApiResponse = await response.json();
+      const result: ApiResponse<UserListResponse> = await response.json();
 
       if (!result.success || !result.data) {
         throw new Error(result.error || 'ユーザー一覧の取得に失敗しました');
@@ -38,7 +38,7 @@ export default function UsersPage() {
         method: 'DELETE',
       });
 
-      const result: ApiResponse = await response.json();
+      const result: ApiResponse<{ message: string }> = await response.json();
 
       if (!result.success) {
         throw new Error(result.error || 'ユーザーの削除に失敗しました');
