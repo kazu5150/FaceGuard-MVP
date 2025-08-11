@@ -71,8 +71,8 @@ export function validateFaceEmbedding(embedding: unknown): { valid: boolean; err
     return { valid: false, error: 'Face embedding must contain only numbers' };
   }
   
-  if (embedding.length !== 204) {
-    return { valid: false, error: `Invalid embedding length: expected 204, got ${embedding.length}` };
+  if (embedding.length !== 234) {
+    return { valid: false, error: `Invalid embedding length: expected 234, got ${embedding.length}` };
   }
   
   return { valid: true };

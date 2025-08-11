@@ -66,7 +66,14 @@ export async function POST(request: NextRequest) {
         const storedEmbedding = JSON.parse(faceData.embedding) as number[];
         const similarity = FaceDetector.calculateSimilarity(faceEmbedding, storedEmbedding);
         
+        console.log(`Face comparison for ${faceData.user.name}:`);
+        console.log(`- Stored embedding length: ${storedEmbedding.length}`);
+        console.log(`- Input embedding length: ${faceEmbedding.length}`);
+        console.log(`- Similarity score: ${similarity}`);
+        console.log(`- Current best match: ${bestMatch.user?.name || 'none'} (${bestMatch.similarity})`);
+        
         if (similarity > bestMatch.similarity) {
+          console.log(`- New best match: ${faceData.user.name} with similarity ${similarity}`);
           bestMatch = {
             user: faceData.user,
             similarity: similarity,

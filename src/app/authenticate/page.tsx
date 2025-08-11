@@ -70,6 +70,9 @@ export default function AuthenticatePage() {
       }
 
       setAuthResult(result.data);
+      
+      // 認証完了後にカメラを停止
+      faceDetectorRef.current?.stopDetection();
     } catch (err) {
       setError(err instanceof Error ? err.message : '認証処理中にエラーが発生しました');
     } finally {
@@ -83,6 +86,7 @@ export default function AuthenticatePage() {
     setCurrentFaceResult(null);
     setError(null);
     setIsAuthenticating(false);
+    // 再認証の場合はカメラを再開する必要があることをユーザーに明示
   };
 
   return (

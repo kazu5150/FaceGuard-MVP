@@ -231,30 +231,66 @@ export class FaceDetector {
   }
 
   private extractFeatures(landmarks: NormalizedLandmark[]): number[] {
-    // 主要な68点の特徴点を抽出
-    // MediaPipeのface_meshは468点だが、顔認証に重要な点のみを選択
+    // MediaPipeの重要な顔特徴点を厳選（重複なし）
     const keyPointIndices = [
-      // 顔の輪郭
-      10, 151, 9, 8, 168, 6, 148, 176, 149, 150, 136, 172, 58, 132, 93, 234, 127, 162, 21, 54,
-      103, 67, 109, 10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288, 397, 365, 379, 378, 400,
-      377, 152, 148, 176, 149, 150, 136, 172, 58, 132, 93, 234, 127, 162, 21, 54, 103, 67, 109,
-      // 左目
-      33, 7, 163, 144, 145, 153, 154, 155, 133, 173, 157, 158, 159, 160, 161, 246,
-      // 右目  
-      362, 398, 384, 385, 386, 387, 388, 466, 263, 249, 390, 373, 374, 380, 381, 382,
-      // 鼻
-      1, 2, 5, 4, 6, 168, 8, 9, 10, 151, 195, 197, 196, 3, 51, 48, 115, 131, 134, 102, 48, 64,
-      // 口
-      11, 12, 13, 14, 15, 16, 17, 18, 200, 199, 175, 0, 269, 270, 267, 271, 272, 13, 82, 81, 80, 78
+      // 顔の輪郭（16点）
+      10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288, 397, 365, 379, 378,
+      
+      // 左眉毛（5点）
+      46, 53, 52, 51, 48,
+      
+      // 右眉毛（5点）
+      276, 283, 282, 281, 278,
+      
+      // 左目（8点）
+      33, 7, 163, 144, 145, 153, 154, 155,
+      
+      // 右目（8点）
+      362, 398, 384, 385, 386, 387, 388, 466,
+      
+      // 鼻（13点）
+      1, 2, 5, 4, 6, 19, 94, 125, 141, 235, 236, 3, 51,
+      
+      // 口の外側（12点）
+      61, 84, 17, 314, 405, 320, 307, 375, 321, 308, 324, 318,
+      
+      // 口の内側（8点）
+      78, 95, 88, 178, 87, 14, 317, 402,
+      
+      // 顔の中心点（5点）
+      9, 10, 151, 200, 175
     ];
 
-    return keyPointIndices.slice(0, 68).flatMap(index => {
+    // 重複を除去
+    const uniqueIndices = [...new Set(keyPointIndices)];
+    
+    console.log(`Extracting features from ${uniqueIndices.length} unique landmark points`);
+    
+    const features: number[] = [];
+    
+    for (const index of uniqueIndices) {
       if (index < landmarks.length) {
         const point = landmarks[index];
-        return [point.x, point.y, point.z || 0];
+        features.push(point.x, point.y, point.z || 0);
       }
-      return [0, 0, 0]; // フォールバック
-    });
+    }
+    
+    // 正規化（0-1の範囲に収める）
+    return this.normalizeFeatures(features);
+  }
+
+  private normalizeFeatures(features: number[]): number[] {
+    if (features.length === 0) return [];
+    
+    // 各次元の平均と標準偏差を計算
+    const mean = features.reduce((sum, val) => sum + val, 0) / features.length;
+    const variance = features.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / features.length;
+    const stdDev = Math.sqrt(variance);
+    
+    // Z-score正規化
+    if (stdDev === 0) return features; // 全て同じ値の場合
+    
+    return features.map(val => (val - mean) / stdDev);
   }
 
   private calculateQuality(landmarks: NormalizedLandmark[]): number {

@@ -106,7 +106,7 @@ const FaceDetectorComponent = forwardRef<FaceDetectorRef, FaceDetectorProps>(({
     setIsDetecting(false);
   };
 
-  // 写真キャプチャ
+  // 写真キャプチャ（カメラは停止しない）
   const capturePhoto = async (): Promise<FaceDetectionResult | null> => {
     if (!currentResult || !videoRef.current || !canvasRef.current) {
       return null;
@@ -129,6 +129,7 @@ const FaceDetectorComponent = forwardRef<FaceDetectorRef, FaceDetectorProps>(({
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
     }
 
+    // カメラは停止せず、継続して検出を行う
     return currentResult;
   };
 

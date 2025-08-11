@@ -151,6 +151,9 @@ function UserRegisterContent() {
       }
 
       setStep('complete');
+      
+      // 登録完了後にカメラを停止
+      faceDetectorRef.current?.stopDetection();
     } catch (err) {
       setError(err instanceof Error ? err.message : '顔データの登録に失敗しました');
     } finally {
